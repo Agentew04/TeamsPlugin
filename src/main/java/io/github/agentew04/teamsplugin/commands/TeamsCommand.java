@@ -7,6 +7,7 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
+import javax.swing.text.StyledEditorKit;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -85,6 +86,10 @@ public class TeamsCommand implements CommandExecutor {
             }
             return true;
         }else if(args[0].equalsIgnoreCase("accept")){
+            if(args.length < 2){
+                sender.sendMessage(ChatColor.RED+"Usage: /teams accept <player>");
+                return true;
+            }
             args = Arrays.copyOfRange(args, 1, args.length);
             String teamName = String.join(" ", args);
 
@@ -95,13 +100,66 @@ public class TeamsCommand implements CommandExecutor {
                 return true;
             }
             return true;
+        }else if(args[0].equalsIgnoreCase("decline")){
+            if(args.length < 2) {
+                sender.sendMessage(ChatColor.RED+"Usage: /teams decline <teamName>");
+                return true;
+            }
+
+            args = Arrays.copyOfRange(args, 1, args.length);
+            String teamName = String.join(" ", args);
+
+            boolean result = plugin.declineInvite(teamName, ((Player)sender).getUniqueId());
+
+            if(!result){
+                sender.sendMessage(ChatColor.RED+"You are not invited to this team/already in a team/team does not exist");
+                return true;
+            }
+            sender.sendMessage(ChatColor.GREEN+"Invite declined");
+            return true;
+        }else if(args[0].equalsIgnoreCase("edit")){
+            if (args.length < 3) {
+                sender.sendMessage(ChatColor.RED+"Usage: /teams edit <friendlyFire | color> <[true | false] | [color]>");
+            }
+            boolean isFriendlyFire = args[1].equalsIgnoreCase("friendlyFire");
+            boolean isColor = args[1].equalsIgnoreCase("color");
+            if(!isFriendlyFire && !isColor){
+                sender.sendMessage(ChatColor.RED+"Usage: /teams edit <friendlyFire | color> <[true | false] | [color]>");
+                return true;
+            }
+            if(isFriendlyFire){
+                boolean newFF = Boolean.parseBoolean(args[2]);
+                boolean result = plugin.setFriendlyFire(((Player)sender).getUniqueId(), newFF);
+                if(!result){
+                    sender.sendMessage(ChatColor.RED+"You are not the owner of this team/not in a team");
+                    return true;
+                }
+                sender.sendMessage(ChatColor.GREEN+"Friendly fire set to "+newFF);
+                return true;
+            }
+            if(isColor){
+                ChatColor newcolor;
+                try {
+                    newcolor = ChatColor.valueOf(args[2]);
+                }catch (IllegalArgumentException e){
+                    sender.sendMessage(ChatColor.RED+"Invalid color");
+                    return true;
+                }
+                boolean result = plugin.setTeamColor(((Player)sender).getUniqueId(), newcolor);
+                if(!result){
+                    sender.sendMessage(ChatColor.RED+"You are not the owner of this team/not in a team");
+                    return true;
+                }
+                sender.sendMessage(ChatColor.GREEN+"Team color set to "+newcolor);
+                return true;
+            }
+            return true;
         }
 
-        // TODO: add edit command
+
         // todo: add list command
         // todo: add find command
         // todo add delete command
-        // todo add decline command
         return false;
     }
 }

@@ -112,9 +112,14 @@ public final class Teamsplugin extends JavaPlugin {
         return true;
     }
 
-    public boolean setFriendlyFire(String teamName, boolean friendlyFire) {
+    public boolean setFriendlyFire(UUID player, boolean friendlyFire) {
+        String teamName = this.getPlayerTeam(player);
+
         // check if team exists
-        if(!this.teamExists(teamName)) return false;
+        if(teamName == null) return false;
+
+        // check if is owner
+        if(getOwner(teamName) != player) return false;
 
         String path = getTeamPath(teamName);
         this.config.set(path + ".friendlyFire", friendlyFire);
@@ -128,9 +133,14 @@ public final class Teamsplugin extends JavaPlugin {
         return this.config.getBoolean(path + ".friendlyFire");
     }
 
-    public boolean setTeamColor(String teamName, ChatColor color) {
+    public boolean setTeamColor(UUID player, ChatColor color) {
+        String teamName = this.getPlayerTeam(player);
+
         // check if team exists
-        if(!this.teamExists(teamName)) return false;
+        if(teamName == null) return false;
+
+        // check if is owner
+        if(getOwner(teamName) != player) return false;
 
         String path =getTeamPath(teamName);
         this.config.set(path + ".color", color.toString());
@@ -215,4 +225,11 @@ public final class Teamsplugin extends JavaPlugin {
         return true;
     }
 
+    public UUID getOwner(String teamName) {
+        // check if team exists
+        if (!this.teamExists(teamName)) return null;
+
+        String path = getTeamPath(teamName);
+        return UUID.fromString(this.config.getString(path + ".owner"));
+    }
 }
