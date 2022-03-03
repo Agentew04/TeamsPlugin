@@ -1,16 +1,21 @@
 package io.github.agentew04.teamsplugin.commands;
 
 import io.github.agentew04.teamsplugin.Teamsplugin;
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.Location;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
+import javax.security.auth.callback.CallbackHandler;
 import javax.swing.text.StyledEditorKit;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.UUID;
 
 public class TeamsCommand implements CommandExecutor {
 
@@ -36,6 +41,10 @@ public class TeamsCommand implements CommandExecutor {
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
+        if(!(sender instanceof Player)) {
+            sender.sendMessage(ChatColor.RED + "You must be a player to use this command!");
+            return true;
+        }
         if (args.length == 0) {
             sender.sendMessage(ChatColor.RED+"Usage: /teams <create | invite | leave | edit | list | find | delete | accept | decline>");
             return true;
@@ -59,7 +68,8 @@ public class TeamsCommand implements CommandExecutor {
             }
             sender.sendMessage(ChatColor.GREEN+"Team created");
             return true;
-        }else if(args[0].equalsIgnoreCase("invite")){
+        }
+        else if(args[0].equalsIgnoreCase("invite")){
             if (args.length < 2) {
                 sender.sendMessage(ChatColor.RED+"Usage: /teams invite <player>");
                 return true;
@@ -77,7 +87,8 @@ public class TeamsCommand implements CommandExecutor {
             }
             sender.sendMessage(ChatColor.GREEN+"Player invited");
             return true;
-        }else if(args[0].equalsIgnoreCase("leave")){
+        }
+        else if(args[0].equalsIgnoreCase("leave")){
             boolean result = plugin.leaveTeam(((Player)sender).getUniqueId());
 
             if(!result){
@@ -85,7 +96,8 @@ public class TeamsCommand implements CommandExecutor {
                 return true;
             }
             return true;
-        }else if(args[0].equalsIgnoreCase("accept")){
+        }
+        else if(args[0].equalsIgnoreCase("accept")){
             if(args.length < 2){
                 sender.sendMessage(ChatColor.RED+"Usage: /teams accept <player>");
                 return true;
@@ -100,7 +112,8 @@ public class TeamsCommand implements CommandExecutor {
                 return true;
             }
             return true;
-        }else if(args[0].equalsIgnoreCase("decline")){
+        }
+        else if(args[0].equalsIgnoreCase("decline")){
             if(args.length < 2) {
                 sender.sendMessage(ChatColor.RED+"Usage: /teams decline <teamName>");
                 return true;
@@ -117,7 +130,8 @@ public class TeamsCommand implements CommandExecutor {
             }
             sender.sendMessage(ChatColor.GREEN+"Invite declined");
             return true;
-        }else if(args[0].equalsIgnoreCase("edit")){
+        }
+        else if(args[0].equalsIgnoreCase("edit")){
             if (args.length < 3) {
                 sender.sendMessage(ChatColor.RED+"Usage: /teams edit <friendlyFire | color> <[true | false] | [color]>");
             }
@@ -155,10 +169,64 @@ public class TeamsCommand implements CommandExecutor {
             }
             return true;
         }
+        else if(args[0].equalsIgnoreCase("list")){
+            List<String> teams = plugin.getTeams();
+            sender.sendMessage(ChatColor.GREEN+"Teams:");
+            for(String team : teams){
+                sender.sendMessage(ChatColor.GREEN+"  "+team);
+            }
+        }
+        else if(args[0].equalsIgnoreCase("info")){
+            if(args.length < 2){
+                sender.sendMessage(ChatColor.RED+"Usage: /teams info <teamName>");
+                return true;
+            }
+            args = Arrays.copyOfRange(args, 1, args.length);
+            String teamName = String.join(" ", args);
+            List<String> members = plugin.getTeamMembers(teamName);
+            UUID owner = plugin.getOwner(teamName);
+            if(members == null || members.isEmpty()){
+                sender.sendMessage(ChatColor.RED+"Team does not exist");
+                return true;
+            }
+            sender.sendMessage(ChatColor.GREEN+"Team "+ ChatColor.YELLOW+teamName+ChatColor.GREEN+" members:");
+            for(String member : members){
+                UUID uuid = UUID.fromString(member);
+                OfflinePlayer player = Bukkit.getOfflinePlayer(uuid);
 
+                if(uuid.equals(owner)){
+                    sender.sendMessage(ChatColor.GREEN+"  "+player.getName()+ChatColor.YELLOW+" (Owner)");
+                }else{
+                    sender.sendMessage(ChatColor.GREEN+"  "+player.getName());
+                }
+            }
+            sender.sendMessage(ChatColor.GREEN+"-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=");
+            return true;
+        }
+        else if(args[0].equalsIgnoreCase("find")) {
+            if (args.length < 2) {
+                sender.sendMessage(ChatColor.RED + "Usage: /teams find <playerName>");
+                return true;
+            }
+            Player target = Bukkit.getPlayer(args[1]);
+            Player player = (Player) sender;
+            if (target == null) {
+                sender.sendMessage(ChatColor.RED + "Player not found");
+                return true;
+            }
+            Location loc = plugin.getPlayerLocation(player.getUniqueId(),target.getUniqueId());
+            if(loc == null) {
+                sender.sendMessage(ChatColor.RED + "You are not in the same team as that player");
+                return true;
+            }
+            target.sendMessage(ChatColor.YELLOW+ player.getName()+ChatColor.GREEN+" got your location!");
+            sender.sendMessage(ChatColor.YELLOW+ target.getName() +ChatColor.GREEN+ "'s current position is:");
+            sender.sendMessage(ChatColor.GREEN+"  X: "+ ChatColor.YELLOW +loc.getX());
+            sender.sendMessage(ChatColor.GREEN+"  Y: "+ ChatColor.YELLOW +loc.getY());
+            sender.sendMessage(ChatColor.GREEN+"  Z: "+ ChatColor.YELLOW +loc.getZ());
+            return true;
+        }
 
-        // todo: add list command
-        // todo: add find command
         // todo add delete command
         return false;
     }

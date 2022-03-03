@@ -232,4 +232,12 @@ public final class Teamsplugin extends JavaPlugin {
         String path = getTeamPath(teamName);
         return UUID.fromString(this.config.getString(path + ".owner"));
     }
+
+    public List<String> getTeamMembers(String teamName) {
+        // check if team exists
+        if (!this.teamExists(teamName)) return null;
+
+        String path = getTeamPath(teamName);
+        return this.config.getStringList(path + ".members");
+    }
 }
