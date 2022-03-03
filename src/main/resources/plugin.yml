@@ -13,5 +13,5 @@ commands:
       - equipe
       - time
     description: Command to manage teams
-    usage: "Usage: /teams <create|invite|leave|edit|list|find|delete>"
+    usage: "Usage: /teams <create | invite | leave | edit | list | find | delete>"
     permission-message: You don't have permission to use this command

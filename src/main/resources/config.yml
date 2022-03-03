@@ -1,0 +1,8 @@
+teams:
+  default:
+    owner: Steve
+    color: WHITE
+    members: Steve
+    invited: Alex
+    friendlyFire: false
+

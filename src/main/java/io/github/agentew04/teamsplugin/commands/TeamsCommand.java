@@ -36,11 +36,11 @@ public class TeamsCommand implements CommandExecutor {
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if (args.length == 0) {
-            sender.sendMessage(ChatColor.RED+"Usage: /teams <create|invite|leave|edit|list|find|delete|accept|decline>");
+            sender.sendMessage(ChatColor.RED+"Usage: /teams <create | invite | leave | edit | list | find | delete | accept | decline>");
             return true;
         }
         if (!availableCommands.contains(args[0])) {
-            sender.sendMessage(ChatColor.RED+"Usage: /teams <create|invite|leave|edit|list|find|delete|accept|decline>");
+            sender.sendMessage(ChatColor.RED+"Usage: /teams <create | invite | leave | edit | list | find | delete | accept | decline>");
             return true;
         }
         if (args[0].equalsIgnoreCase("create")) {
@@ -52,8 +52,8 @@ public class TeamsCommand implements CommandExecutor {
             String teamName = String.join(" ", args);
             boolean result = plugin.createTeam(teamName, ((Player)sender).getUniqueId());
 
-            if (!result) {
-                sender.sendMessage(ChatColor.RED+"Team already exists");
+            if(!result){
+                sender.sendMessage(ChatColor.RED+"Team already exists/You are already in a team");
                 return true;
             }
             sender.sendMessage(ChatColor.GREEN+"Team created");
@@ -71,12 +71,37 @@ public class TeamsCommand implements CommandExecutor {
             boolean result = plugin.inviteToTeam(plugin.getPlayerTeam(((Player)sender).getUniqueId()), player.getUniqueId());
 
             if(!result){
-                sender.sendMessage(ChatColor.RED+"Player is already in a team");
+                sender.sendMessage(ChatColor.RED+"Player is already in a team/already invited/team does not exist");
                 return true;
             }
             sender.sendMessage(ChatColor.GREEN+"Player invited");
             return true;
+        }else if(args[0].equalsIgnoreCase("leave")){
+            boolean result = plugin.leaveTeam(((Player)sender).getUniqueId());
+
+            if(!result){
+                sender.sendMessage(ChatColor.RED+"You are not in a team");
+                return true;
+            }
+            return true;
+        }else if(args[0].equalsIgnoreCase("accept")){
+            args = Arrays.copyOfRange(args, 1, args.length);
+            String teamName = String.join(" ", args);
+
+            boolean result = plugin.acceptInvite(teamName, ((Player)sender).getUniqueId());
+
+            if(!result){
+                sender.sendMessage(ChatColor.RED+"You are not invited to this team/already in a team/team does not exist");
+                return true;
+            }
+            return true;
         }
+
+        // TODO: add edit command
+        // todo: add list command
+        // todo: add find command
+        // todo add delete command
+        // todo add decline command
         return false;
     }
 }
