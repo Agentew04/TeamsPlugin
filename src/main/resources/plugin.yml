@@ -1,0 +1,17 @@
+name: Teams
+version: '${project.version}'
+main: io.github.agentew04.teamsplugin.Teamsplugin
+api-version: 1.18
+prefix: Teams
+authors: [ Agentew04 ]
+description: A simple and lightweigth plugin to let players create their own teams
+website: github.com/Agentew04/TeamsPlugin
+commands:
+  teams:
+    aliases:
+      - team
+      - equipe
+      - time
+    description: Command to manage teams
+    usage: "Usage: /teams <create|invite|leave|edit|list|find|delete>"
+    permission-message: You don't have permission to use this command
